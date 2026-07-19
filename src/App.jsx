@@ -1,28 +1,19 @@
-import Header from "./components/Header";
-import About from "./components/About";
-import Skills from "./components/Skills";
-import Footer from "./components/Footer";
+import Home from "./components/Home";
+import NavBar from "./components/Navbar";
+import { Routes, Route } from "react-router-dom";
+import Projects from "./components/Projects";
+import Contact from "./components/Contact";
 
 function App() {
-  const skills = [
-    "HTML",
-    "CSS",
-    "JavaScript",
-    "UI/UX Design",
-    "SQL",
-    "Video Editing",
-    "Graphic Design"
-
-  ];
 
   return (
     <>
-      <div>
-        <Header name="Tanishq Mehta" />
-        <About />
-        <Skills skillList={skills} />
-        <Footer />
-      </div>
+      <NavBar />
+       <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/contact" element={<Contact />} /> 
+      </Routes>
     </>
   )
 }
