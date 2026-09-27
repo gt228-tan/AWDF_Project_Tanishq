@@ -1,7 +1,7 @@
 import Home from "./components/Home";
 import NavBar from "./components/Navbar";
 import { Routes, Route } from "react-router-dom";
-import Projects from "./components/Projects";
+import Tasks from "./components/Tasks";
 import Contact from "./components/Contact";
 
 function App() {
@@ -11,7 +11,8 @@ function App() {
       <NavBar />
        <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/projects" element={<Projects />} />
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/projects" element={<Tasks />} />
         <Route path="/contact" element={<Contact />} /> 
       </Routes>
     </>
