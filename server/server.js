@@ -133,7 +133,7 @@ const validateAuthInput = (req, res, next) => {
   next();
 };
 
-// POST /register - Register new user and hash password with bcrypt
+// POST /register -  
 app.post("/register", validateAuthInput, async (req, res) => {
   try {
     const { email, password } = req.body;

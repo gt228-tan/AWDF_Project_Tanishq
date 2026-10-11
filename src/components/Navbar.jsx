@@ -32,6 +32,13 @@ function NavBar() {
         </Link>
 
         <Link
+          to="/projects"
+          style={{ color: "white", marginRight: "20px", textDecoration: "none", fontWeight: 500 }}
+        >
+          Projects
+        </Link>
+
+        <Link
           to="/tasks"
           style={{ color: "white", marginRight: "20px", textDecoration: "none", fontWeight: 500 }}
         >
