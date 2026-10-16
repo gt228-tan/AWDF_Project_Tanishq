@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Spinner from "./Spinner";
 import ErrorMessage from "./ErrorMessage";
+import CacheMonitor from "./CacheMonitor";
 import {
   getTasks,
   createTask,
@@ -462,7 +463,7 @@ function Tasks() {
               background: "rgba(59, 130, 246, 0.1)",
               border: "1px solid rgba(59, 130, 246, 0.3)",
               borderRadius: 8,
-              marginBottom: 24,
+              marginBottom: 20,
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -476,6 +477,9 @@ function Tasks() {
               JWT Active
             </span>
           </div>
+
+          {/* Practical 9: In-Memory Cache Telemetry & Benchmark Widget */}
+          <CacheMonitor onRefreshTasks={fetchTasks} />
 
           {/* Task Creation Form */}
           <form

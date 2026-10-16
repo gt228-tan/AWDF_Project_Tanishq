@@ -6,6 +6,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { performance } from "perf_hooks";
+import cache, { cacheStats, getCached, setCached, invalidateAllTasksCache } from "./cache.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -200,23 +202,92 @@ app.get("/me", authMiddleware, async (req, res) => {
 });
 
 // ==========================================
-// 4. PROTECTED TASK ROUTES
+// 4. PROTECTED TASK ROUTES WITH IN-MEMORY CACHING
 // ==========================================
 
-// GET /tasks - Fetch all tasks (Protected by authMiddleware)
+// GET /tasks - Fetch all tasks (Protected by authMiddleware, with in-memory caching)
 app.get("/tasks", authMiddleware, async (req, res) => {
+  const start = performance.now();
+  const cacheKey = req.user?.id ? `tasks_${req.user.id}` : "all_tasks";
+  const bypassCache = req.query.nocache === "true";
+
   try {
+    // 1. Check cache first (Step 3 in lab sheet)
+    if (!bypassCache) {
+      const cached = getCached(cacheKey);
+      if (cached) {
+        const duration = (performance.now() - start).toFixed(2);
+        res.set("X-Cache", "HIT");
+        res.set("X-Response-Time", `${duration}ms`);
+        return res.json(cached);
+      }
+    }
+
+    // 2. Cache MISS: Query MongoDB
     const tasks = await Task.find({
       $or: [{ user: req.user.id }, { user: { $exists: false } }]
     }).sort({ createdAt: -1 });
 
+    // 3. Store result in cache (default TTL 60 seconds)
+    if (!bypassCache) {
+      setCached(cacheKey, tasks);
+      // Also ensure generic 'all_tasks' key is kept in sync if needed
+      setCached("all_tasks", tasks);
+    }
+
+    const duration = (performance.now() - start).toFixed(2);
+    res.set("X-Cache", bypassCache ? "BYPASS" : "MISS");
+    res.set("X-Response-Time", `${duration}ms`);
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch tasks", error: err.message });
   }
 });
 
-// POST /tasks - Create a new task (Protected + Validated)
+// GET /tasks/:id - Fetch single task (Supplementary Problem 1: Single-task caching)
+app.get("/tasks/:id", authMiddleware, async (req, res) => {
+  const start = performance.now();
+  const taskId = req.params.id;
+  const cacheKey = `task_${taskId}`;
+  const bypassCache = req.query.nocache === "true";
+
+  try {
+    // Check single-task cache
+    if (!bypassCache) {
+      const cachedTask = getCached(cacheKey);
+      if (cachedTask) {
+        const duration = (performance.now() - start).toFixed(2);
+        res.set("X-Cache", "HIT");
+        res.set("X-Response-Time", `${duration}ms`);
+        return res.json(cachedTask);
+      }
+    }
+
+    // Query database on cache miss
+    const task = await Task.findOne({
+      _id: taskId,
+      $or: [{ user: req.user.id }, { user: { $exists: false } }]
+    });
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Store single task in cache
+    if (!bypassCache) {
+      setCached(cacheKey, task);
+    }
+
+    const duration = (performance.now() - start).toFixed(2);
+    res.set("X-Cache", bypassCache ? "BYPASS" : "MISS");
+    res.set("X-Response-Time", `${duration}ms`);
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch task", error: err.message });
+  }
+});
+
+// POST /tasks - Create a new task (Protected + Validated, Invalidate cache on write)
 app.post("/tasks", authMiddleware, validateTask, async (req, res) => {
   try {
     const { title, description } = req.body;
@@ -227,13 +298,17 @@ app.post("/tasks", authMiddleware, validateTask, async (req, res) => {
       user: req.user.id
     });
     const savedTask = await newTask.save();
+
+    // Invalidate task cache so stale data is never served (Step 4 in lab sheet)
+    invalidateAllTasksCache(req.user.id);
+
     res.status(201).json(savedTask);
   } catch (err) {
     res.status(500).json({ message: "Failed to create task", error: err.message });
   }
 });
 
-// PUT /tasks/:id - Update task (Protected)
+// PUT /tasks/:id - Update task (Protected, Invalidate cache on write)
 app.put("/tasks/:id", authMiddleware, async (req, res) => {
   try {
     const taskId = req.params.id;
@@ -243,13 +318,16 @@ app.put("/tasks/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
+    // Invalidate both all-tasks list cache and this specific single task cache
+    invalidateAllTasksCache(req.user.id, taskId);
+
     res.json(updatedTask);
   } catch (err) {
     res.status(500).json({ message: "Failed to update task", error: err.message });
   }
 });
 
-// DELETE /tasks/:id - Delete task (Protected)
+// DELETE /tasks/:id - Delete task (Protected, Invalidate cache on write)
 app.delete("/tasks/:id", authMiddleware, async (req, res) => {
   try {
     const taskId = req.params.id;
@@ -259,10 +337,59 @@ app.delete("/tasks/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
+    // Invalidate both all-tasks list cache and this specific single task cache
+    invalidateAllTasksCache(req.user.id, taskId);
+
     res.json({ message: "Task deleted successfully", task: deletedTask });
   } catch (err) {
     res.status(500).json({ message: "Failed to delete task", error: err.message });
   }
+});
+
+// ==========================================
+// 5. CACHE TELEMETRY & DEBUG ENDPOINTS (Supplementary Problem 2 & 3)
+// ==========================================
+
+// GET /cache/stats - Debug endpoint exposing cache hits, misses, hit-ratio, and cached keys
+app.get("/cache/stats", (req, res) => {
+  const keys = cache.keys();
+  res.json({
+    message: "Cache telemetry & debugging stats",
+    stats: {
+      hits: cacheStats.hits,
+      misses: cacheStats.misses,
+      invalidations: cacheStats.invalidations,
+      totalRequests: cacheStats.totalRequests,
+      hitRate: cacheStats.hitRate
+    },
+    cacheConfig: {
+      stdTTL: cache.options.stdTTL,
+      checkperiod: cache.options.checkperiod
+    },
+    nodeCacheInternal: cache.getStats(),
+    cachedKeys: keys,
+    keysCount: keys.length
+  });
+});
+
+// POST /cache/clear - Manually flush all cache entries and reset counters
+app.post("/cache/clear", (req, res) => {
+  cache.flushAll();
+  cacheStats.reset();
+  res.json({ message: "Cache successfully flushed and telemetry reset." });
+});
+
+// POST /cache/config - Update TTL dynamically for experimentation (Supplementary Problem 3)
+app.post("/cache/config", (req, res) => {
+  const { ttl } = req.body;
+  if (!ttl || typeof ttl !== "number" || ttl <= 0) {
+    return res.status(400).json({ message: "Please provide a valid numeric ttl in seconds (> 0)." });
+  }
+  cache.options.stdTTL = ttl;
+  res.json({
+    message: `Cache stdTTL successfully updated to ${ttl} seconds.`,
+    stdTTL: cache.options.stdTTL
+  });
 });
 
 app.listen(PORT, () => {

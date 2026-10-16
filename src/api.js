@@ -69,10 +69,19 @@ export const getMe = () =>
 // TASKS API (PROTECTED)
 // ==========================================
 
-export const getTasks = () =>
-  fetch(`${BASE_URL}/tasks`, {
+export const getTasks = (options = {}) => {
+  const url = options.nocache ? `${BASE_URL}/tasks?nocache=true` : `${BASE_URL}/tasks`;
+  return fetch(url, {
     headers: getAuthHeaders()
   }).then(handleResponse);
+};
+
+export const getTask = (id, options = {}) => {
+  const url = options.nocache ? `${BASE_URL}/tasks/${id}?nocache=true` : `${BASE_URL}/tasks/${id}`;
+  return fetch(url, {
+    headers: getAuthHeaders()
+  }).then(handleResponse);
+};
 
 export const createTask = (taskData) =>
   fetch(`${BASE_URL}/tasks`, {
@@ -93,3 +102,23 @@ export const deleteTask = (id) =>
     method: "DELETE",
     headers: getAuthHeaders()
   }).then(handleResponse);
+
+// ==========================================
+// CACHE TELEMETRY & DEBUG API (PRACTICAL 9)
+// ==========================================
+
+export const getCacheStats = () =>
+  fetch(`${BASE_URL}/cache/stats`).then(handleResponse);
+
+export const clearCache = () =>
+  fetch(`${BASE_URL}/cache/clear`, {
+    method: "POST"
+  }).then(handleResponse);
+
+export const updateCacheTTL = (ttl) =>
+  fetch(`${BASE_URL}/cache/config`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ttl: Number(ttl) })
+  }).then(handleResponse);
+
