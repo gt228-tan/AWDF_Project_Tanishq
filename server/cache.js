@@ -1,16 +1,13 @@
 import NodeCache from "node-cache";
 
-// Default TTL: 60 seconds (as required by Practical 9)
 const DEFAULT_TTL = parseInt(process.env.CACHE_TTL_SECONDS, 10) || 60;
 
-// Initialize NodeCache instance
 const cache = new NodeCache({
   stdTTL: DEFAULT_TTL,
-  checkperiod: 120, // automatic expired key deletion check every 120s
-  useClones: false  // improves performance by storing references
+  checkperiod: 120,
+  useClones: false // improves performance by storing references
 });
 
-// Cache performance and telemetry stats (Supplementary Problem 2)
 export const cacheStats = {
   hits: 0,
   misses: 0,
