@@ -11,7 +11,7 @@ import cache, { cacheStats, getCached, setCached, invalidateAllTasksCache } from
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/tasks_db";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://mongodb:27017/tasks_db";
 const JWT_SECRET = process.env.JWT_SECRET || "charusat_jwt_secret_key_default";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
 
