@@ -11,6 +11,7 @@ function Home() {
     { name: "SQL" },
     { name: "Video Editing" },
     { name: "Graphic Design" }
+    
   ];
 
   const [useGitHubPhoto, setUseGitHubPhoto] = useState(false);
