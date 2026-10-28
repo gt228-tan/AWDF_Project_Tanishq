@@ -178,4 +178,12 @@ export const getContactMessages = () =>
     headers: getAuthHeaders()
   }).then(handleResponse);
 
-
+// ==========================================
+// AI TASK DESCRIPTION API
+// ==========================================
+export const generateTaskDescription = (title) =>
+  fetch(`${BASE_URL}/api/ai/generate-description`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title })
+  }).then(handleResponse);

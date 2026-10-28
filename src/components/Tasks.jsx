@@ -12,6 +12,7 @@ import {
   getMe,
   getToken,
   setToken,
+  generateTaskDescription,
   logout
 } from "../api";
 
@@ -19,8 +20,11 @@ function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiStatusMsg, setAiStatusMsg] = useState(null);
 
   // Authentication states
+
   const [token, setAuthToken] = useState(getToken());
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -134,6 +138,33 @@ function Tasks() {
     setCurrentUser(null);
     setTasks([]);
   };
+  const handleGenerateDescription = async () => {
+    if (!title.trim()) {
+      setFormError("Please enter a task title first to generate a description.");
+      return;
+    }
+
+    setFormError(null);
+    setAiStatusMsg(null);
+    setIsGeneratingAI(true);
+
+    try {
+      const res = await generateTaskDescription(title);
+      if (res.fallback || !res.description) {
+        const detail = res.error || res.message;
+        setAiStatusMsg(detail ? `⚠️ AI: ${detail}` : "⚠️ AI unavailable: please enter description manually.");
+      } else {
+        // Fills the editable description field — the student can accept or modify it
+        setDescription(res.description);
+        setAiStatusMsg("✨ Description suggested! You can modify or keep it.");
+      }
+    } catch (err) {
+      setAiStatusMsg("⚠️ Could not generate description: " + err.message);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -521,7 +552,7 @@ function Tasks() {
             />
             <input
               type="text"
-              placeholder="Description (optional)"
+              placeholder="Description (optional - edit or accept AI suggestion)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               style={{
@@ -534,22 +565,49 @@ function Tasks() {
                 outline: "none",
               }}
             />
-            <button
-              type="submit"
-              style={{
-                padding: "10px 20px",
-                borderRadius: 6,
-                border: "none",
-                background: "var(--btn-primary-bg)",
-                color: "var(--btn-primary-text)",
-                fontWeight: 700,
-                cursor: "pointer",
-                alignSelf: "flex-start",
-                transition: "opacity 0.2s ease",
-              }}
-            >
-              Create Task
-            </button>
+
+            {aiStatusMsg && (
+              <span style={{ fontSize: 13, color: aiStatusMsg.startsWith("✨") ? "#10b981" : "#f59e0b" }}>
+                {aiStatusMsg}
+              </span>
+            )}
+
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+              <button
+                type="submit"
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: "var(--btn-primary-bg)",
+                  color: "var(--btn-primary-text)",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "opacity 0.2s ease",
+                }}
+              >
+                Create Task
+              </button>
+
+              <button
+                type="button"
+                onClick={handleGenerateDescription}
+                disabled={isGeneratingAI || !title.trim()}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: "var(--btn-primary-bg)",
+                  color: "var(--btn-primary-text)",
+                  fontWeight: 700,
+                  cursor: isGeneratingAI || !title.trim() ? "not-allowed" : "pointer",
+                  opacity: isGeneratingAI || !title.trim() ? 0.6 : 1,
+                  transition: "opacity 0.2s ease",
+                }}
+              >
+                {isGeneratingAI ? "Generating..." : "AI Suggest Description"}
+              </button>
+            </div>
           </form>
 
           {/* Task List */}
