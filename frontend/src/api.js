@@ -122,3 +122,60 @@ export const updateCacheTTL = (ttl) =>
     body: JSON.stringify({ ttl: Number(ttl) })
   }).then(handleResponse);
 
+// ==========================================
+// GITHUB API (PROFILE & REPOSITORIES)
+// ==========================================
+
+export const fetchGitHubProfile = async (username = "gt228-tan") => {
+  try {
+    const res = await fetch(`${BASE_URL}/github/profile?username=${encodeURIComponent(username)}`);
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    // If backend proxy is not reachable, continue to direct GitHub API
+  }
+
+  const directRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`);
+  if (!directRes.ok) {
+    throw new Error(`GitHub user not found or rate limit reached (${directRes.status})`);
+  }
+  return await directRes.json();
+};
+
+export const fetchGitHubRepos = async (username = "gt228-tan") => {
+  try {
+    const res = await fetch(`${BASE_URL}/github/repos?username=${encodeURIComponent(username)}`);
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    // If backend proxy is not reachable, continue to direct GitHub API
+  }
+
+  const directRes = await fetch(
+    `https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=100`
+  );
+  if (!directRes.ok) {
+    throw new Error(`Unable to load GitHub repositories (${directRes.status})`);
+  }
+  return await directRes.json();
+};
+
+// ==========================================
+// CONTACT API
+// ==========================================
+
+export const submitContact = (contactData) =>
+  fetch(`${BASE_URL}/contact`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(contactData)
+  }).then(handleResponse);
+
+export const getContactMessages = () =>
+  fetch(`${BASE_URL}/contact`, {
+    headers: getAuthHeaders()
+  }).then(handleResponse);
+
+

@@ -1,4 +1,9 @@
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 dotenv.config();
 
 import express from "express";
@@ -11,7 +16,7 @@ import cache, { cacheStats, getCached, setCached, invalidateAllTasksCache } from
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || "mongodb://mongodb:27017/tasks_db";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/tasks_db";
 const JWT_SECRET = process.env.JWT_SECRET || "charusat_jwt_secret_key_default";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
 
@@ -87,6 +92,28 @@ const taskSchema = new mongoose.Schema(
 
 const Task = mongoose.model("Task", taskSchema);
 
+// Contact Schema
+const contactSchema = new mongoose.Schema(
+  {
+    name: { type: String, trim: true, default: "Anonymous" },
+    email: { type: String, trim: true, lowercase: true, default: "" },
+    message: { type: String, required: true, trim: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }
+  },
+  {
+    timestamps: true,
+    toJSON: {
+      transform: (doc, ret) => {
+        ret.id = ret._id.toString();
+        delete ret._id;
+        delete ret.__v;
+      }
+    }
+  }
+);
+
+const Contact = mongoose.model("Contact", contactSchema);
+
 // ==========================================
 // 2. MIDDLEWARES
 // ==========================================
@@ -108,6 +135,20 @@ const authMiddleware = (req, res, next) => {
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token." });
   }
+};
+
+// Optional Authentication Middleware: populates req.user if valid token provided, but doesn't block requests
+const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      req.user = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+      // Allow guest submissions if token is invalid or expired
+    }
+  }
+  next();
 };
 
 // Validation Middleware: checks task input
@@ -392,6 +433,111 @@ app.post("/cache/config", (req, res) => {
   });
 });
 
+// ==========================================
+// 6. GITHUB PROFILE & REPOSITORIES (WITH IN-MEMORY CACHING)
+// ==========================================
+app.get("/github/profile", async (req, res) => {
+  const username = req.query.username || "gt228-tan";
+  const cacheKey = `gh_profile_${username}`;
+
+  const cached = getCached(cacheKey);
+  if (cached) {
+    res.set("X-Cache", "HIT");
+    return res.json(cached);
+  }
+
+  try {
+    const response = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
+      headers: { "User-Agent": "AWDF-Portfolio-App" }
+    });
+    if (!response.ok) {
+      return res.status(response.status).json({ message: `GitHub API error: ${response.statusText}` });
+    }
+    const data = await response.json();
+    setCached(cacheKey, data, 300); // 5 minute TTL
+    res.set("X-Cache", "MISS");
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch GitHub profile", error: err.message });
+  }
+});
+
+app.get("/github/repos", async (req, res) => {
+  const username = req.query.username || "gt228-tan";
+  const cacheKey = `gh_repos_${username}`;
+
+  const cached = getCached(cacheKey);
+  if (cached) {
+    res.set("X-Cache", "HIT");
+    return res.json(cached);
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=100`,
+      { headers: { "User-Agent": "AWDF-Portfolio-App" } }
+    );
+    if (!response.ok) {
+      return res.status(response.status).json({ message: `GitHub API error: ${response.statusText}` });
+    }
+    const data = await response.json();
+    setCached(cacheKey, data, 300); // 5 minute TTL
+    res.set("X-Cache", "MISS");
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch GitHub repositories", error: err.message });
+  }
+});
+
+// ==========================================
+// 7. CONTACT FORM API
+// ==========================================
+
+// POST /contact - Save contact form entry to MongoDB database
+app.post("/contact", optionalAuth, async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ message: "Validation error: Message is required." });
+    }
+
+    if (email && email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        return res.status(400).json({ message: "Validation error: Invalid email format." });
+      }
+    }
+
+    const newContact = new Contact({
+      name: name && name.trim() ? name.trim() : (req.user?.email ? req.user.email.split("@")[0] : "Anonymous"),
+      email: email && email.trim() ? email.trim() : (req.user?.email || ""),
+      message: message.trim(),
+      user: req.user?.id || null
+    });
+
+    const savedEntry = await newContact.save();
+
+    res.status(201).json({
+      message: "Contact message saved successfully to database.",
+      contact: savedEntry
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to save contact message", error: err.message });
+  }
+});
+
+// GET /contact - Fetch recent contact submissions from MongoDB database
+app.get("/contact", async (req, res) => {
+  try {
+    const messages = await Contact.find().sort({ createdAt: -1 }).limit(50);
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch contact messages", error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+

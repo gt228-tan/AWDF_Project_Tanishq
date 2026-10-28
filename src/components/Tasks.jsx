@@ -261,7 +261,7 @@ function Tasks() {
               <input
                 type="email"
                 required
-                placeholder="diya@gmail.com"
+                placeholder="gt@gmail.com"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
                 style={{
