@@ -103,11 +103,11 @@ function Contact() {
       {/* Contact Form Card */}
       <div
         style={{
-          background: "var(--bg)",
-          border: "1px solid var(--border)",
-          borderRadius: 14,
-          padding: "32px",
-          boxShadow: "var(--shadow)",
+          background: "var(--card-bg)",
+          border: "2px solid var(--border-strong)",
+          borderRadius: 8,
+          padding: "36px 32px",
+          boxShadow: "var(--shadow-sm)",
           marginBottom: 40,
         }}
       >
@@ -133,9 +133,9 @@ function Contact() {
                 style={{
                   width: "100%",
                   padding: "12px 14px",
-                  borderRadius: 8,
-                  border: "1px solid var(--border)",
-                  background: "var(--code-bg)",
+                  borderRadius: 6,
+                  border: "1px solid var(--input-border)",
+                  background: "var(--input-bg)",
                   color: "var(--text-h)",
                   fontSize: 15,
                   boxSizing: "border-box",
@@ -164,9 +164,9 @@ function Contact() {
                 style={{
                   width: "100%",
                   padding: "12px 14px",
-                  borderRadius: 8,
-                  border: "1px solid var(--border)",
-                  background: "var(--code-bg)",
+                  borderRadius: 6,
+                  border: "1px solid var(--input-border)",
+                  background: "var(--input-bg)",
                   color: "var(--text-h)",
                   fontSize: 15,
                   boxSizing: "border-box",
@@ -196,9 +196,9 @@ function Contact() {
               style={{
                 width: "100%",
                 padding: "12px 14px",
-                borderRadius: 8,
-                border: "1px solid var(--border)",
-                background: "var(--code-bg)",
+                borderRadius: 6,
+                border: "1px solid var(--input-border)",
+                background: "var(--input-bg)",
                 color: "var(--text-h)",
                 fontSize: 15,
                 boxSizing: "border-box",
@@ -212,7 +212,7 @@ function Contact() {
             style={{
               padding: "10px 14px",
               borderRadius: 6,
-              background: "var(--social-bg)",
+              background: "var(--card-muted)",
               border: "1px dashed var(--border)",
               fontSize: 14,
               color: "var(--text)",
@@ -231,12 +231,12 @@ function Contact() {
               style={{
                 background: "transparent",
                 border: "1px solid var(--border)",
-                borderRadius: 6,
+                borderRadius: 4,
                 padding: "6px 14px",
                 color: "var(--text)",
                 cursor: "pointer",
                 fontSize: 13,
-                fontWeight: 500,
+                fontWeight: 600,
                 transition: "all 0.2s ease",
               }}
             >
@@ -244,8 +244,8 @@ function Contact() {
             </button>
 
             {showHelp && (
-              <p style={{ color: "blue", margin: 0, fontSize: 14, fontWeight: 500 }}>
-                Enter your message and click submit.
+              <p style={{ color: "var(--text-muted)", margin: 0, fontSize: 14, fontWeight: 500 }}>
+                Enter your message and click submit to save directly into MongoDB.
               </p>
             )}
           </div>
@@ -258,15 +258,14 @@ function Contact() {
               style={{
                 flex: 1,
                 padding: "14px 24px",
-                borderRadius: 8,
+                borderRadius: 6,
                 border: "none",
-                background: isSubmitting || !message.trim() ? "var(--border)" : "var(--accent)",
-                color: isSubmitting || !message.trim() ? "var(--text)" : "#ffffff",
+                background: isSubmitting || !message.trim() ? "var(--border)" : "var(--btn-primary-bg)",
+                color: isSubmitting || !message.trim() ? "var(--text-muted)" : "var(--btn-primary-text)",
                 fontSize: 16,
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: isSubmitting || !message.trim() ? "not-allowed" : "pointer",
-                transition: "background 0.2s ease, transform 0.1s ease",
-                boxShadow: isSubmitting || !message.trim() ? "none" : "0 4px 12px rgba(170, 59, 255, 0.3)",
+                transition: "opacity 0.2s ease, transform 0.1s ease",
               }}
             >
               {isSubmitting ? "Saving to Database..." : "Submit Message ✉️"}

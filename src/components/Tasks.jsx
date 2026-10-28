@@ -194,18 +194,25 @@ function Tasks() {
   };
 
   return (
-    <section style={{ padding: "32px 24px", maxWidth: 800, margin: "0 auto", textAlign: "left" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-        <h3 style={{ color: "#f6ff00", margin: 0 }}>Tasks</h3>
+    <section style={{ padding: "40px 24px", maxWidth: 860, margin: "0 auto", textAlign: "left" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
+        <div>
+          <h1 style={{ color: "var(--text-h)", margin: "0 0 6px 0", fontSize: "2rem", fontWeight: 700 }}>
+            Tasks
+          </h1>
+          <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.95rem" }}>
+            Create, manage, and track assignments and project tasks.
+          </p>
+        </div>
         {token && (
           <button
             onClick={handleLogout}
             style={{
               padding: "8px 16px",
               borderRadius: 6,
-              border: "1px solid #dc2626",
+              border: "1px solid rgba(239, 68, 68, 0.4)",
               background: "transparent",
-              color: "#f87171",
+              color: "#ef4444",
               fontWeight: 600,
               cursor: "pointer",
               fontSize: 13,
@@ -222,14 +229,14 @@ function Tasks() {
       {!token ? (
         <div
           style={{
-            maxWidth: 400,
-            margin: "24px auto 40px",
-            background: "var(--bg, #ffffff)",
-            padding: "32px 28px",
-            borderRadius: 12,
-            border: "1px solid var(--border, #e5e7eb)",
-            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
-            color: "var(--text-h, #1f2937)",
+            maxWidth: 420,
+            margin: "32px auto 48px",
+            background: "var(--card-bg)",
+            padding: "36px 32px",
+            borderRadius: 8,
+            border: "2px solid var(--border-strong)",
+            boxShadow: "var(--shadow-sm)",
+            color: "var(--text-h)",
           }}
         >
           <h3
@@ -238,7 +245,7 @@ function Tasks() {
               textAlign: "center",
               fontSize: 22,
               fontWeight: 700,
-              color: "var(--text-h, #111827)",
+              color: "var(--text-h)",
             }}
           >
             {isLoginMode ? "Welcome Back" : "Create an Account"}
@@ -249,7 +256,7 @@ function Tasks() {
               <label
                 style={{
                   display: "block",
-                  color: "var(--text-h, #374151)",
+                  color: "var(--text-h)",
                   fontSize: 14,
                   fontWeight: 600,
                   marginBottom: 6,
@@ -268,10 +275,10 @@ function Tasks() {
                   width: "100%",
                   boxSizing: "border-box",
                   padding: "10px 14px",
-                  borderRadius: 8,
-                  border: "1px solid #d1d5db",
-                  background: "#fff",
-                  color: "#111827",
+                  borderRadius: 6,
+                  border: "1px solid var(--input-border)",
+                  background: "var(--input-bg)",
+                  color: "var(--text-h)",
                   fontSize: 14,
                   outline: "none",
                 }}
@@ -282,7 +289,7 @@ function Tasks() {
               <label
                 style={{
                   display: "block",
-                  color: "var(--text-h, #374151)",
+                  color: "var(--text-h)",
                   fontSize: 14,
                   fontWeight: 600,
                   marginBottom: 6,
@@ -301,10 +308,10 @@ function Tasks() {
                   width: "100%",
                   boxSizing: "border-box",
                   padding: "10px 14px",
-                  borderRadius: 8,
-                  border: "1px solid #d1d5db",
-                  background: "#fff",
-                  color: "#111827",
+                  borderRadius: 6,
+                  border: "1px solid var(--input-border)",
+                  background: "var(--input-bg)",
+                  color: "var(--text-h)",
                   fontSize: 14,
                   outline: "none",
                 }}
@@ -316,7 +323,7 @@ function Tasks() {
                 <label
                   style={{
                     display: "block",
-                    color: "var(--text-h, #374151)",
+                    color: "var(--text-h)",
                     fontSize: 14,
                     fontWeight: 600,
                     marginBottom: 6,
@@ -335,10 +342,10 @@ function Tasks() {
                     width: "100%",
                     boxSizing: "border-box",
                     padding: "10px 14px",
-                    borderRadius: 8,
-                    border: "1px solid #d1d5db",
-                    background: "#fff",
-                    color: "#111827",
+                    borderRadius: 6,
+                    border: "1px solid var(--input-border)",
+                    background: "var(--input-bg)",
+                    color: "var(--text-h)",
                     fontSize: 14,
                     outline: "none",
                   }}
@@ -352,14 +359,14 @@ function Tasks() {
               style={{
                 marginTop: 8,
                 padding: "12px 18px",
-                borderRadius: 8,
+                borderRadius: 6,
                 border: "none",
-                background: "#4f46e5",
-                color: "#ffffff",
-                fontWeight: 600,
+                background: "var(--btn-primary-bg)",
+                color: "var(--btn-primary-text)",
+                fontWeight: 700,
                 fontSize: 15,
                 cursor: authLoading ? "not-allowed" : "pointer",
-                boxShadow: "0 2px 8px rgba(79, 70, 229, 0.3)",
+                transition: "opacity 0.2s ease",
               }}
             >
               {authLoading ? "Processing..." : isLoginMode ? "Log in" : "Register"}
@@ -505,10 +512,11 @@ function Tasks() {
               style={{
                 padding: "10px 14px",
                 borderRadius: 6,
-                border: "1px solid var(--border, #444)",
-                background: "#1e1e1e",
-                color: "#fff",
+                border: "1px solid var(--input-border)",
+                background: "var(--input-bg)",
+                color: "var(--text-h)",
                 fontSize: 14,
+                outline: "none",
               }}
             />
             <input
@@ -519,23 +527,25 @@ function Tasks() {
               style={{
                 padding: "10px 14px",
                 borderRadius: 6,
-                border: "1px solid var(--border, #444)",
-                background: "#1e1e1e",
-                color: "#fff",
+                border: "1px solid var(--input-border)",
+                background: "var(--input-bg)",
+                color: "var(--text-h)",
                 fontSize: 14,
+                outline: "none",
               }}
             />
             <button
               type="submit"
               style={{
-                padding: "10px 18px",
+                padding: "10px 20px",
                 borderRadius: 6,
                 border: "none",
-                background: "#f6ff00",
-                color: "#000",
-                fontWeight: 600,
+                background: "var(--btn-primary-bg)",
+                color: "var(--btn-primary-text)",
+                fontWeight: 700,
                 cursor: "pointer",
                 alignSelf: "flex-start",
+                transition: "opacity 0.2s ease",
               }}
             >
               Create Task
@@ -548,19 +558,20 @@ function Tasks() {
           ) : (
             <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
               {tasks.length === 0 ? (
-                <li style={{ color: "var(--text, #888)" }}>No tasks available. Add one above!</li>
+                <li style={{ color: "var(--text-muted)" }}>No tasks available. Add one above!</li>
               ) : (
                 tasks.map((task) => (
                   <li
                     key={task.id}
                     style={{
-                      padding: "16px 20px",
+                      padding: "18px 22px",
                       borderRadius: 8,
-                      border: "1px solid var(--border, #333)",
-                      background: "var(--social-bg, #111)",
+                      border: "1px solid var(--border)",
+                      background: "var(--card-bg)",
                       display: "flex",
                       flexDirection: "column",
                       gap: 12,
+                      boxShadow: "var(--shadow-sm)",
                     }}
                   >
                     {editingId === task.id ? (
@@ -573,9 +584,9 @@ function Tasks() {
                           style={{
                             padding: "8px 12px",
                             borderRadius: 6,
-                            border: "1px solid #3b82f6",
-                            background: "#1e1e1e",
-                            color: "#fff",
+                            border: "1px solid var(--border-strong)",
+                            background: "var(--input-bg)",
+                            color: "var(--text-h)",
                             fontSize: 14,
                           }}
                         />
@@ -587,9 +598,9 @@ function Tasks() {
                           style={{
                             padding: "8px 12px",
                             borderRadius: 6,
-                            border: "1px solid #444",
-                            background: "#1e1e1e",
-                            color: "#fff",
+                            border: "1px solid var(--input-border)",
+                            background: "var(--input-bg)",
+                            color: "var(--text-h)",
                             fontSize: 14,
                           }}
                         />
@@ -631,17 +642,17 @@ function Tasks() {
                         <div>
                           <span
                             style={{
-                              color: "#fff",
-                              fontWeight: 600,
+                              color: "var(--text-h)",
+                              fontWeight: 700,
                               fontSize: 16,
                               textDecoration: task.completed ? "line-through" : "none",
-                              opacity: task.completed ? 0.6 : 1,
+                              opacity: task.completed ? 0.5 : 1,
                             }}
                           >
                             {task.title}
                           </span>
                           {task.description && (
-                            <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--text, #aaa)" }}>
+                            <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--text-muted)" }}>
                               {task.description}
                             </p>
                           )}
@@ -653,10 +664,11 @@ function Tasks() {
                             style={{
                               padding: "6px 12px",
                               borderRadius: 4,
-                              border: "1px solid #3b82f6",
-                              background: "rgba(59, 130, 246, 0.1)",
-                              color: "#60a5fa",
+                              border: "1px solid var(--border)",
+                              background: "transparent",
+                              color: "var(--text)",
                               fontSize: 12,
+                              fontWeight: 600,
                               cursor: "pointer",
                             }}
                           >
@@ -667,10 +679,11 @@ function Tasks() {
                             style={{
                               padding: "6px 12px",
                               borderRadius: 4,
-                              border: "1px solid #444",
-                              background: task.completed ? "#22c55e" : "#333",
-                              color: "#fff",
+                              border: task.completed ? "1px solid #16a34a" : "1px solid var(--border-strong)",
+                              background: task.completed ? "#16a34a" : "var(--pill-bg)",
+                              color: task.completed ? "#ffffff" : "var(--pill-text)",
                               fontSize: 12,
+                              fontWeight: 600,
                               cursor: "pointer",
                             }}
                           >
@@ -681,10 +694,11 @@ function Tasks() {
                             style={{
                               padding: "6px 12px",
                               borderRadius: 4,
-                              border: "1px solid #dc2626",
-                              background: "#dc2626",
-                              color: "#fff",
+                              border: "1px solid rgba(239, 68, 68, 0.4)",
+                              background: "transparent",
+                              color: "#ef4444",
                               fontSize: 12,
+                              fontWeight: 600,
                               cursor: "pointer",
                             }}
                           >

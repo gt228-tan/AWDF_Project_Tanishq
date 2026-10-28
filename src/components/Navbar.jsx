@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { getToken, logout } from "../api";
 
 function NavBar() {
   const [hasToken, setHasToken] = useState(Boolean(getToken()));
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem("portfolio-theme") === "dark";
+  });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleAuthChange = () => {
@@ -13,76 +18,177 @@ function NavBar() {
     return () => window.removeEventListener("auth-changed", handleAuthChange);
   }, []);
 
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.setAttribute("data-theme", "dark");
+      localStorage.setItem("portfolio-theme", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      localStorage.setItem("portfolio-theme", "light");
+    }
+  }, [isDark]);
+
+  const toggleTheme = () => {
+    setIsDark((prev) => !prev);
+  };
+
+  const navLinks = [
+    { name: "Home", path: "/" },
+    { name: "Projects", path: "/projects" },
+    { name: "Tasks", path: "/tasks" },
+    { name: "Contact", path: "/contact" },
+  ];
+
   return (
     <nav
       style={{
-        padding: "15px 24px",
-        background: "#00111d",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
+        width: "100%",
+        background: "#00111D",
+        borderBottom: "1px solid rgba(248, 248, 246, 0.12)",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.15)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div
+        style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          padding: "16px 24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        {/* Brand / Logo */}
         <Link
           to="/"
-          style={{ color: "white", marginRight: "20px", textDecoration: "none", fontWeight: 500 }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            textDecoration: "none",
+            color: "#F8F8F6",
+          }}
         >
-          Home
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 6,
+              background: "#F8F8F6",
+              color: "#00111D",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: 800,
+              fontSize: 15,
+              letterSpacing: "-0.5px",
+            }}
+          >
+            TM
+          </div>
+          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-0.3px", color: "#F8F8F6" }}>
+            Tanishq Mehta
+          </span>
         </Link>
 
-        <Link
-          to="/projects"
-          style={{ color: "white", marginRight: "20px", textDecoration: "none", fontWeight: 500 }}
+        {/* Desktop Navigation Links */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+          className="desktop-nav"
         >
-          Projects
-        </Link>
+          {navLinks.map((link) => {
+            const isActive = location.pathname === link.path;
+            return (
+              <Link
+                key={link.path}
+                to={link.path}
+                style={{
+                  color: isActive ? "#F8F8F6" : "rgba(248, 248, 246, 0.75)",
+                  textDecoration: "none",
+                  fontWeight: isActive ? 600 : 500,
+                  fontSize: 14,
+                  padding: "8px 14px",
+                  borderRadius: 6,
+                  background: isActive ? "rgba(248, 248, 246, 0.12)" : "transparent",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+        </div>
 
-        <Link
-          to="/tasks"
-          style={{ color: "white", marginRight: "20px", textDecoration: "none", fontWeight: 500 }}
-        >
-          Tasks
-        </Link>
-
-        <Link
-          to="/contact"
-          style={{ color: "white", textDecoration: "none", fontWeight: 500 }}
-        >
-          Contact
-        </Link>
-      </div>
-
-      <div>
-        {hasToken ? (
+        {/* Controls: Theme Switcher & Auth */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Theme Toggle Button */}
           <button
-            onClick={() => logout()}
+            onClick={toggleTheme}
+            title={isDark ? "Switch to Light Theme" : "Switch to Dark Theme"}
             style={{
               background: "transparent",
-              border: "1px solid #dc2626",
-              color: "#f87171",
-              padding: "5px 12px",
-              borderRadius: "4px",
+              border: "1px solid rgba(248, 248, 246, 0.25)",
+              color: "#F8F8F6",
+              width: 36,
+              height: 36,
+              borderRadius: 6,
               cursor: "pointer",
-              fontSize: "12px",
-              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 15,
+              transition: "border-color 0.2s ease, background 0.2s ease",
             }}
           >
-            Logout
+            {isDark ? "☀️" : "🌙"}
           </button>
-        ) : (
-          <Link
-            to="/tasks"
-            style={{
-              color: "#f6ff00",
-              textDecoration: "none",
-              fontSize: "13px",
-              fontWeight: 600,
-            }}
-          >
-            Login / Register
-          </Link>
-        )}
+
+          {/* Auth Button */}
+          {hasToken ? (
+            <button
+              onClick={() => logout()}
+              style={{
+                background: "transparent",
+                border: "1px solid rgba(239, 68, 68, 0.5)",
+                color: "#f87171",
+                padding: "8px 16px",
+                borderRadius: 6,
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: 600,
+                transition: "all 0.15s ease",
+              }}
+            >
+              Logout
+            </button>
+          ) : (
+            <Link
+              to="/tasks"
+              style={{
+                background: "#F8F8F6",
+                color: "#00111D",
+                padding: "8px 16px",
+                borderRadius: 6,
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 600,
+                transition: "opacity 0.2s ease, transform 0.15s ease",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              Login / Register
+            </Link>
+          )}
+        </div>
       </div>
     </nav>
   );

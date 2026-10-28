@@ -287,13 +287,13 @@ function Projects() {
         </form>
       )}
 
-      {/* Profile Overview Banner */}
+      {/* Profile Overview Banner - solid background with no gradient */}
       {profile && (
         <div
           style={{
-            background: "linear-gradient(135deg, rgba(26, 27, 38, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%)",
-            border: "1px solid var(--border, #2e303a)",
-            borderRadius: 16,
+            background: "var(--card-bg)",
+            border: "2px solid var(--border-strong)",
+            borderRadius: 8,
             padding: "24px 28px",
             marginBottom: 28,
             display: "flex",
@@ -301,7 +301,7 @@ function Projects() {
             justifyContent: "space-between",
             flexWrap: "wrap",
             gap: 20,
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.25)",
+            boxShadow: "var(--shadow-sm)",
             textAlign: "left",
           }}
         >
@@ -313,13 +313,12 @@ function Projects() {
                 width: 72,
                 height: 72,
                 borderRadius: "50%",
-                border: "3px solid #c084fc",
-                boxShadow: "0 4px 14px rgba(192, 132, 252, 0.35)",
+                border: "2px solid var(--border-strong)",
               }}
             />
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                <h2 style={{ margin: 0, fontSize: "1.45rem", fontWeight: 700, color: "#ffffff" }}>
+                <h2 style={{ margin: 0, fontSize: "1.45rem", fontWeight: 700, color: "var(--text-h)" }}>
                   {profile.name || profile.login}
                 </h2>
                 <a
@@ -327,10 +326,10 @@ function Projects() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    color: "var(--accent, #c084fc)",
+                    color: "var(--text-h)",
                     textDecoration: "none",
                     fontSize: "0.9rem",
-                    fontWeight: 500,
+                    fontWeight: 600,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 4,
@@ -345,7 +344,7 @@ function Projects() {
                 </a>
               </div>
               {profile.bio && (
-                <p style={{ margin: "6px 0 0", color: "#9ca3af", fontSize: "0.9rem", maxWidth: 600 }}>
+                <p style={{ margin: "6px 0 0", color: "var(--text-muted)", fontSize: "0.9rem", maxWidth: 600 }}>
                   {profile.bio}
                 </p>
               )}
@@ -356,8 +355,9 @@ function Projects() {
                   rel="noopener noreferrer"
                   style={{
                     marginTop: 6,
-                    color: "#f6ff00",
+                    color: "var(--text-h)",
                     fontSize: "0.82rem",
+                    fontWeight: 600,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 4,
@@ -578,24 +578,24 @@ function Projects() {
 
         {/* Language Filter Pills */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: "0.8rem", color: "#9ca3af", fontWeight: 600, textTransform: "uppercase" }}>
+          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>
             Language:
           </span>
           {availableLanguages.map((lang) => {
             const isSelected = selectedLanguage === lang;
-            const langColor = LANGUAGE_COLORS[lang] || "#c084fc";
+            const langColor = LANGUAGE_COLORS[lang] || "var(--border-strong)";
             return (
               <button
                 key={lang}
                 onClick={() => setSelectedLanguage(lang)}
                 style={{
-                  padding: "4px 10px",
-                  borderRadius: 16,
-                  border: isSelected ? `1px solid ${langColor}` : "1px solid rgba(255, 255, 255, 0.1)",
-                  background: isSelected ? "rgba(192, 132, 252, 0.15)" : "transparent",
-                  color: isSelected ? "#fff" : "#9ca3af",
+                  padding: "5px 12px",
+                  borderRadius: 4,
+                  border: isSelected ? "1.5px solid var(--border-strong)" : "1px solid var(--border)",
+                  background: isSelected ? "var(--pill-bg)" : "var(--card-bg)",
+                  color: isSelected ? "var(--pill-text)" : "var(--text)",
                   fontSize: "0.8rem",
-                  fontWeight: isSelected ? 600 : 400,
+                  fontWeight: isSelected ? 700 : 500,
                   cursor: "pointer",
                   display: "inline-flex",
                   alignItems: "center",
@@ -701,9 +701,9 @@ function Projects() {
               <div
                 key={repo.id}
                 style={{
-                  background: "rgba(22, 23, 29, 0.8)",
-                  border: "1px solid var(--border, #2e303a)",
-                  borderRadius: 14,
+                  background: "var(--card-bg)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 8,
                   padding: "20px 22px",
                   display: "flex",
                   flexDirection: "column",
@@ -711,16 +711,17 @@ function Projects() {
                   transition: "transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
                   position: "relative",
                   overflow: "hidden",
+                  boxShadow: "var(--shadow-sm)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-4px)";
-                  e.currentTarget.style.borderColor = "rgba(192, 132, 252, 0.6)";
-                  e.currentTarget.style.boxShadow = "0 10px 24px rgba(0,0,0,0.4)";
+                  e.currentTarget.style.transform = "translateY(-3px)";
+                  e.currentTarget.style.borderColor = "var(--border-strong)";
+                  e.currentTarget.style.boxShadow = "var(--shadow-md)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.borderColor = "var(--border, #2e303a)";
-                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.borderColor = "var(--border)";
+                  e.currentTarget.style.boxShadow = "var(--shadow-sm)";
                 }}
               >
                 {/* Card Top: Name & Fork Tag */}
@@ -740,8 +741,8 @@ function Projects() {
                       rel="noopener noreferrer"
                       style={{
                         fontSize: "1.12rem",
-                        fontWeight: 600,
-                        color: "var(--accent, #c084fc)",
+                        fontWeight: 700,
+                        color: "var(--text-h)",
                         textDecoration: "none",
                         wordBreak: "break-word",
                         display: "inline-flex",
@@ -881,14 +882,14 @@ function Projects() {
                             alignItems: "center",
                             gap: 4,
                             padding: "5px 10px",
-                            borderRadius: 6,
-                            background: "rgba(246, 255, 0, 0.12)",
-                            border: "1px solid rgba(246, 255, 0, 0.35)",
-                            color: "#f6ff00",
+                            borderRadius: 4,
+                            background: "var(--pill-bg)",
+                            border: "1px solid var(--border-strong)",
+                            color: "var(--pill-text)",
                             fontSize: "0.75rem",
                             fontWeight: 600,
                             textDecoration: "none",
-                            transition: "all 0.15s ease",
+                            transition: "opacity 0.15s ease",
                           }}
                         >
                           Demo ↗
@@ -904,10 +905,10 @@ function Projects() {
                           alignItems: "center",
                           gap: 4,
                           padding: "5px 10px",
-                          borderRadius: 6,
-                          background: "rgba(255, 255, 255, 0.05)",
-                          border: "1px solid rgba(255, 255, 255, 0.12)",
-                          color: "#fff",
+                          borderRadius: 4,
+                          background: "transparent",
+                          border: "1px solid var(--border)",
+                          color: "var(--text)",
                           fontSize: "0.75rem",
                           fontWeight: 500,
                           textDecoration: "none",
